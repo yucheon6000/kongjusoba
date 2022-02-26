@@ -11,7 +11,9 @@ export type Props = {
 };
 
 interface State {
-    boardListJson: Array<BoardJson>
+    boardListJson: Array<BoardJson>,
+    maxCount: number,
+    hiddenClickCount: number
 };
 
 const table_row_item_style = { flex: 0.32 };
@@ -29,7 +31,9 @@ class SettingElement extends React.Component<Props, State> {
         })
 
         this.state = {
-            boardListJson
+            boardListJson,
+            maxCount: 6,
+            hiddenClickCount: 0
         };
     }
 
@@ -46,6 +50,12 @@ class SettingElement extends React.Component<Props, State> {
     }
 
     private onClickAddButton() {
+        let newLength = this.state.boardListJson.length + 1;
+        if (newLength > this.state.maxCount) {
+            alert(`등록 가능한 게시판 개수는 총 ${this.state.maxCount}개입니다.`);
+            return;
+        }
+
         let boardListJson = [...this.state.boardListJson];
         boardListJson.push({id: "", name: "", shortName: "", lastestArticleId: 0});
 
@@ -70,6 +80,22 @@ class SettingElement extends React.Component<Props, State> {
         this.setState({ boardListJson });
     }
 
+
+    private onClickHiddenButton() {
+        /* 게시판 개수 제한은 학교 사이트의 부하를 막기위해 설계된 기능입니다. */
+        /* 본 코드를 보아도 눈 감아주세요. */
+        
+        let maxCount = this.state.maxCount;
+        let hiddenClickCount = this.state.hiddenClickCount + 1;
+
+        if (hiddenClickCount > this.state.maxCount) {
+            alert("게시판 개수 제한 해제");
+            maxCount = 100;
+        }
+
+        this.setState({ maxCount, hiddenClickCount });
+    }
+
     private onCancel() {
         this.props.onCancel();
     }
@@ -90,7 +116,7 @@ class SettingElement extends React.Component<Props, State> {
         return(
             <div className="setting_element">
                 <div className="setting_element_container">
-                    <div className="subtitle">게시판 설정</div>
+                    <div className="subtitle" onClick={this.onClickHiddenButton.bind(this)}>게시판 설정</div>
 
                     <div className="board_setter_table">
                         <div className="board_setter_table_row header">
@@ -115,7 +141,11 @@ class SettingElement extends React.Component<Props, State> {
                             })
                         }
 
-                        <div className="caption">설정을 변경하게 되면 기록이 새롭게 시작됩니다.</div>
+                        <div className="caption">
+                            설정을 변경하게 되면 기록이 새롭게 시작됩니다.<br/>
+                            등록 가능한 게시판 개수는 총 {this.state.maxCount}개입니다.<br/>
+                            (현재 게시판 개수: {this.state.boardListJson.length}/{this.state.maxCount}개)
+                        </div>
 
                         <div className="button_group">
                             <button onClick={this.onCancel.bind(this)}>취소</button>
