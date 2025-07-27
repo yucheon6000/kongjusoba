@@ -6,6 +6,7 @@ export type ArticleJson = {
     author: string,
     date: string,
     isNew: boolean,
+    isBookmark: boolean,
     haveFile: boolean
 };
 
@@ -15,14 +16,16 @@ class Article {
     private author: string;
     private date: Date;
     private isNew: boolean;
+    private isBookmark: boolean;
     private haveFile: boolean;
 
-    public constructor(id: number, title: string, author: string, date: Date, isNew: boolean, haveFile: boolean) {
+    public constructor(id: number, title: string, author: string, date: Date, isNew: boolean, isBookmark: boolean, haveFile: boolean) {
         this.id = id;
         this.title = title;
         this.author = author;
         this.date = date;
         this.isNew = isNew;
+        this.isBookmark = isBookmark;
         this.haveFile = haveFile;
     }
 
@@ -46,8 +49,16 @@ class Article {
         return this.isNew;
     }
 
+    public getIsBookmark(): boolean {
+        return this.isBookmark;
+    }
+
     public setIsNew(value: boolean) {
         this.isNew = value;
+    }
+
+    public setIsBookmark(value: boolean) {
+        this.isBookmark = value;
     }
 
     public getHaveFile(): boolean {
@@ -61,6 +72,7 @@ class Article {
             author: this.getAuthor(),
             date: DateUtil.dateToDateString(this.date),
             isNew: this.getIsNew(),
+            isBookmark: this.getIsBookmark(),
             haveFile: this.getHaveFile()
         };
 
@@ -74,6 +86,7 @@ class Article {
             json.author,
             DateUtil.dateStringToDate(json.date),
             json.isNew,
+            json.isBookmark,
             json.haveFile
         );
     }

@@ -7,10 +7,13 @@ export type UriFormat = {
 }
 
 class UriFormatter {
+    public static recentUriFormatter: UriFormatter;
+
     private uriFormat: UriFormat;
 
     public constructor(uriFormat: UriFormat) {
         this.uriFormat = uriFormat;
+        UriFormatter.recentUriFormatter = this;
     }
 
     public setUriFormat(urlFormat: UriFormat) {

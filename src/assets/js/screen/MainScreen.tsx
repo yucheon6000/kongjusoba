@@ -6,11 +6,12 @@ import UriFormatter, { UriFormat } from "../common/UriFormatter";
 import BoardHeaderElement from "../element/BoardHeaderElement";
 
 import "../../css/MainScreen.css";
-import { FiMoreHorizontal, FiX, FiRefreshCw, FiSettings, FiLoader } from "react-icons/fi";
+import { FiMoreHorizontal, FiX, FiRefreshCw, FiSettings, FiLoader, FiStar } from "react-icons/fi";
 
 import defaultSettingJson from "../../json/setting.json";
 import BoardBodyElement from "../element/BoardBodyElement";
 import SettingElement from "../element/SettingElement";
+import BookmarkBodyElement from "../element/BookmarkBodyElement";
 
 export type Props = {};
 
@@ -21,7 +22,10 @@ export type State = {
     boardInfo: any,
     lastUpdateDate: Date,
     refresh: boolean,
-    setting: boolean
+    setting: boolean,
+    bookmark: boolean,
+    bookmarkBoard: Board,
+    bookmarkClickDate: Date
 };
 
 class MainScreen extends React.Component<Props, State> {
@@ -40,7 +44,10 @@ class MainScreen extends React.Component<Props, State> {
             boardInfo: {},
             lastUpdateDate: new Date(0),
             refresh: false,
-            setting: false
+            setting: false,
+            bookmark: false,
+            bookmarkBoard: new Board("북마크", "북마크", "북마크"),
+            bookmarkClickDate: new Date()
         };
     }
 
@@ -83,17 +90,16 @@ class MainScreen extends React.Component<Props, State> {
     }
 
     private saveSetting() {
-        let setting: any = { };
-        setting.boardList = [ ];
+        let setting: any = { 
+            boardList: [],
+            uriFormat: this.uriFormat
+        };
 
         this.state.boardList.map(board => {
             setting.boardList.push(board.toJson());
         })
 
-        setting.uriFormat = this.uriFormat;
-        
-        let settingJsonString = JSON.stringify(setting);
-        
+        let settingJsonString = JSON.stringify(setting);   
         localStorage.setItem("setting", settingJsonString);
     }
 
@@ -150,7 +156,16 @@ class MainScreen extends React.Component<Props, State> {
     }
 
     public onClickSettingButton() {
+        if(this.state.bookmark) {
+            alert("북마크 외의 페이지에서 클릭해주세요.");
+            return;
+        }
+
         this.setState({ setting: true });
+    }
+
+    public onClickBookmarkButton() {
+        this.setState({ bookmark: true });
     }
 
     public onClickBoardHeaderElement(board: Board) {
@@ -158,7 +173,8 @@ class MainScreen extends React.Component<Props, State> {
 
         this.setState({
             currentBoard: board,
-            boardInfo: { ...this.state.boardInfo }
+            boardInfo: { ...this.state.boardInfo },
+            bookmark: false
         });
     }
 
@@ -205,6 +221,7 @@ class MainScreen extends React.Component<Props, State> {
                 <div className={`menu_button_group ${this.state.showMenuButton ? "show" : ""}`}>
                     <div onClick={this.onClickRefreshButton.bind(this)} className={`button ${this.state.refresh ? "rotate" : ""}`}><FiRefreshCw /></div>
                     <div onClick={this.onClickSettingButton.bind(this)} className="button"><FiSettings /></div>
+                    <div onClick={this.onClickBookmarkButton.bind(this)} className="button"><FiStar /></div>
                     <div className="hidden_button button"><FiMoreHorizontal /></div>
                 </div>
 
@@ -214,10 +231,20 @@ class MainScreen extends React.Component<Props, State> {
                         board => <BoardHeaderElement
                                     key={this.key++}
                                     board={board}
-                                    selected={this.state.currentBoard == board}
+                                    selected={!this.state.bookmark && this.state.currentBoard == board}
                                     isNew={this.state.boardInfo[board.getId()].isNew}
                                     onClick={this.onClickBoardHeaderElement.bind(this)} />
                     )
+                }
+                {
+                    <BoardHeaderElement
+                        board={this.state.bookmarkBoard}
+                        selected={this.state.bookmark}
+                        isNew={false}
+                        onClick={_ => {
+                            this.setState({bookmark: true, bookmarkClickDate: new Date()});
+                        }}
+                    />
                 }
                 </div>
                 
@@ -228,7 +255,7 @@ class MainScreen extends React.Component<Props, State> {
                         board => <BoardBodyElement
                                     key={this.key++}
                                     board={board}
-                                    selected={board == this.state.currentBoard}
+                                    selected={!this.state.bookmark && board == this.state.currentBoard}
                                     lastUpdateDate={this.state.lastUpdateDate}
                                     onClick={this.onClickArticle.bind(this)}/>
                     )
@@ -236,6 +263,9 @@ class MainScreen extends React.Component<Props, State> {
                         <div className="loading_image"><FiLoader /></div>
                         <div className="loading_text">로딩 중..</div>
                     </div>
+                }
+                {
+                    <BookmarkBodyElement key={this.key++} selected={this.state.bookmark} clickDate={this.state.bookmarkClickDate}/>
                 }
                 </div>
 

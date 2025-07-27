@@ -13,27 +13,23 @@ export type Props = {
 };
 
 interface State {
-    isNew: boolean,
     isBookmark: boolean,
     haveFile: boolean
 };
 
 export type OnClickArticleListElemenet = (article: Article) => void;
 
-class ArticleListElement extends React.Component<Props, State> {
+class BookmarkArticleListElement extends React.Component<Props, State> {
     public constructor(props: Props) {
         super(props);
 
         this.state = {
-            isNew: props.article.getIsNew(),
-            isBookmark: props.article.getIsBookmark(),
+            isBookmark: true,
             haveFile: props.article.getHaveFile()
         }
     }
 
     private onClick() {
-        this.props.article.setIsNew(false);
-        this.setState({ isNew: this.props.article.getIsNew() });
         this.props.onClick(this.props.article);
     }
 
@@ -42,7 +38,6 @@ class ArticleListElement extends React.Component<Props, State> {
             `${this.props.board.getId()}-${this.props.article.getId()}`;
 
         let isBookmark: boolean = !this.state.isBookmark;
-        this.props.article.setIsBookmark(isBookmark);
 
         let bookmarkStr = localStorage.getItem("bookmark");
         if(!bookmarkStr)
@@ -70,21 +65,21 @@ class ArticleListElement extends React.Component<Props, State> {
 
     public render() {
         let article = this.props.article;
+        let board = this.props.board;
         return (
             <div className="article_list_element_container">
                 <div className="article_info" onClick={this.onClick.bind(this)} >
-                    <div className={`title ${this.state.isNew ? "" : "checked"}`}>{article.getTitle()}</div>
-                    <div className="date_and_author">{article.getAuthor()} {DateUtil.dateToDateString(article.getDate())}</div>
+                    <div className={`title`}>{article.getTitle()}</div>
+                    <div className="date_and_author">[{board.getName()}] {article.getAuthor()} {DateUtil.dateToDateString(article.getDate())}</div>
                 </div>
                 <div className={`bookmark`} onClick={this.onClickBookmark.bind(this)}>
                     <FiStar style={{
                         "color": `${this.state.isBookmark ? "orange" : "gray"}`,
                         "fontSize": 20 }}/>
                 </div>
-                {/* <div className={`is_new ${this.state.isNew ? "show" : ""}`}>N</div> */}
             </div>
         );
     }
 }
 
-export default ArticleListElement;
+export default BookmarkArticleListElement;

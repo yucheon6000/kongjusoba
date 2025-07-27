@@ -51,7 +51,7 @@ class Parser {
                 let haveFile = $(".td-file .fileok", $tr).length > 0;
 
                 // 결과 (Article)
-                let article = new Article(id, title, author, DateUtil.dateStringToDate(date), true, haveFile);
+                let article = new Article(id, title, author, DateUtil.dateStringToDate(date), true, false, haveFile);
 
                 result.push(article);
             }
